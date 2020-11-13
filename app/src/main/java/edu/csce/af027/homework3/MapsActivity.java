@@ -2,6 +2,7 @@ package edu.csce.af027.homework3;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.room.Room;
@@ -12,7 +13,10 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,7 +33,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -79,8 +86,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -93,10 +98,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             transaction.commit();
         }
         mapFragment.getMapAsync(this);
-
-
-
     }
+
+
+
+
+
 
     public void closePicture(){
        Log.d("hey", "close picture");
@@ -169,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                        }
 
 
-                        //CALL CAMERA FRAGMENT HERE
+//                        //CALL CAMERA FRAGMENT HERE
                         CameraFragment cameraFragment =
                                 (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
 
@@ -186,6 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         transaction.add(R.id.cfFrameLayout, cameraFragment);
                         transaction.commit();
+
 
 
 
@@ -267,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(locationstoShow.size()!=0){
                 for(Picture location: locationstoShow){
                     LatLng coordinates = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(coordinates).title(location.getTitle().substring(0, location.getTitle().indexOf("*")))).setTag(location.getTitle());;
+                    mMap.addMarker(new MarkerOptions().position(coordinates).title(location.getTitle())).setTag(location.getTitle());
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
 
                 }

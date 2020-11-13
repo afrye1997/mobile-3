@@ -24,33 +24,156 @@ public class CameraFragment extends Fragment {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String currentPhotoPath;
+    String imageFileName;
     PictureDatabase db;
     Double latitude;
     Double longitude;
     String title;
+    static final int REQUEST_TAKE_PHOTO = 1;
+    Uri photoURI;
 
+
+//    @Override
+//    public void onCreate(Bundle savedInstanceState){
+//        super.onCreate(savedInstanceState);
+//
+//        Log.d("Camera","in camera fragment onCreate");
+//         latitude = getArguments().getDouble("latitude");
+//         longitude= getArguments().getDouble("longitude");
+//         title= getArguments().getString("title");
+//
+//         db = Room.databaseBuilder(getContext(),
+//                PictureDatabase.class, "picture_database").allowMainThreadQueries().build();
+//        dispatchTakePictureIntent();
+//    }
+//
+//    public static CameraFragment newInstance() {
+//        CameraFragment fragment = new CameraFragment();
+//
+//        return fragment;
+//    }
+//
+//    static final int REQUEST_TAKE_PHOTO = 1;
+//
+//    private void dispatchTakePictureIntent() {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//
+//            }
+//            // Continue only if the File was successfully created
+//            if (photoFile != null) {
+//                Uri photoURI = FileProvider.getUriForFile(getContext(),
+//                        "edu.csce.af027.homework3.fileprovider",
+//                        photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+//
+//                Log.d("help", "idk");
+//            }
+//        }
+//    }
+//
+//
+////    @Override
+////    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+////        super.onActivityResult(requestCode, resultCode, data);
+////        if (requestCode == REQUEST_TAKE_PHOTO) {
+////            if (resultCode == 1) {
+////                Log.d("help", "yeet");
+////            } else if (resultCode == 0) {
+////                 Log.d("help", "yeetttt");
+////            }
+////        }
+////    }
+//
+//
+//
+//
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
+//        File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(
+//                imageFileName,  /* prefix */
+//                ".jpg",         /* suffix */
+//                storageDir      /* directory */
+//        );
+//
+//        // Save a file: path for use with ACTION_VIEW intents
+//        currentPhotoPath = image.getAbsolutePath();
+//
+////Geocoder geocoder= new Geocoder(getContext());
+////        List<Address> addresses = null;
+////        String title= null;
+////        try {
+////            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+////            Log.d("address", addresses.get(0).getAddressLine(0));
+////            title= addresses.get(0).getAddressLine(0)+"***"+timeStamp;
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////        }
+//
+//        title= latitude+"-"+longitude+"***"+timeStamp;
+//        db.pictureDAO().insert(new Picture(title,latitude,longitude,currentPhotoPath));
+//
+//        return image;
+//    }
+//
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         Log.d("Camera","in camera fragment onCreate");
-         latitude = getArguments().getDouble("latitude");
-         longitude= getArguments().getDouble("longitude");
-         title= getArguments().getString("title");
-
-         db = Room.databaseBuilder(getContext(),
+        latitude = getArguments().getDouble("latitude");
+        longitude= getArguments().getDouble("longitude");
+        db = Room.databaseBuilder(getContext(),
                 PictureDatabase.class, "picture_database").allowMainThreadQueries().build();
         dispatchTakePictureIntent();
     }
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
-
         return fragment;
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    static final int REQUEST_TAKE_PHOTO = 1;
+        if(resultCode == -1){
+            //good to go
+            Geocoder geocoder= new Geocoder(getContext());
+            List<Address> addresses = null;
+            String title= null;
+            try {
+                addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                Log.d("address", addresses.get(0).getAddressLine(0));
+                title= addresses.get(0).getAddressLine(0)+"***"+imageFileName;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        db.pictureDAO().insert(new Picture(title, latitude, longitude, currentPhotoPath));
+            Log.d("PLZ WORK", db.pictureDAO().getAllPictures().toString());
+
+            if(db.pictureDAO().getAllPictures().size()!= 0){
+                Log.d("PLZ WORK", db.pictureDAO().getAllPictures().toString());
+
+            }
+
+        }
+    }
+
+
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -66,46 +189,36 @@ public class CameraFragment extends Fragment {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(getContext(),
+                 photoURI = FileProvider.getUriForFile(getContext(),
                         "edu.csce.af027.homework3.fileprovider",
                         photoFile);
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
     }
 
+
+
+
+
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+         imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
-
+        title= imageFileName;
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
-
-Geocoder geocoder= new Geocoder(getContext());
-        List<Address> addresses = null;
-        String title= null;
-        try {
-            addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            Log.d("address", addresses.get(0).getAddressLine(0));
-            title= addresses.get(0).getAddressLine(0)+"***"+timeStamp;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        db.pictureDAO().insert(new Picture(title,latitude,longitude,currentPhotoPath));
-
         return image;
     }
-
 
 
 }

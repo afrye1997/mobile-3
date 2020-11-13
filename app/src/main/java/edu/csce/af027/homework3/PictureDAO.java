@@ -17,7 +17,6 @@ public interface PictureDAO {
     @Query("SELECT * FROM picture_database WHERE title= :title")
     Picture getPicture(String title);
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(Picture picture);
 

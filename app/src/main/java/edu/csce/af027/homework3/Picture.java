@@ -1,11 +1,14 @@
 package edu.csce.af027.homework3;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.net.URI;
 
 @Entity (tableName = "picture_database")
 public class Picture implements Serializable {
